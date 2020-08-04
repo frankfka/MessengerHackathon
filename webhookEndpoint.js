@@ -1,7 +1,6 @@
-const { handlePostback } = require('./service/messenger/postbackHandlers');
-const { handleMessage } = require('./service/messenger/messageHandlers');
 const { Router } = require('express');
 const secrets = require('./secrets')
+const { handleMessengerEvent } = require('./service/messenger/mainHandler');
 
 
 // Handles a webhook event
@@ -12,13 +11,8 @@ function handleWebhookPost(req, res) {
     body.entry.forEach(function(entry) {
       // Get event itself
       let webhookEvent = entry.messaging[0]; // Entry will only contain one item
-      // Get the sender PSID
-      let senderId = webhookEvent.sender.id;
-
-      if (webhookEvent.message) {
-        handleMessage(senderId, webhookEvent.message);
-      } else if (webhookEvent.postback) {
-        handlePostback(senderId, webhookEvent.postback);
+      if (webhookEvent) {
+        handleMessengerEvent(webhookEvent)
       }
     });
     // Return 200 immediately
