@@ -1,74 +1,60 @@
-const { callSendAPI } = require('./common');
 const { logger } = require('../logger');
-const messengerConsts = require('./constants')
+const messengerConstants = require('./constants')
+const conversationState = require('../state/conversationState');
+const sendFunctions  = require('./sendFunctions');
 
-// Handles messaging_postbacks events
-function handlePostback(senderId, received_postback) {
-  let response;
+// Handles messaging_postbacks events and returns a new conversation state
+function handlePostback(senderId, currentState, postbackContent) {
+  // Get the current state code
+  let currentStateCode = currentState[conversationState.STATE_CURR_STATE_KEY]
 
-  logger.info("Handling Postback:")
-  logger.info(received_postback)
-
-  // Get the payload for the postback
-  let payload = received_postback.payload;
-
-  // Set the response based on the postback payload
-  if (payload === messengerConsts.POSTBACK_GET_STARTED_PAYLOAD) {
-    logger.info("Handling get started")
-    response = handlePostbackGetStarted(received_postback)
-  } else if (payload === messengerConsts.POSTBACK_BOOK_APPT_PAYLOAD) {
-    response = handlePostbackBookAppointment(received_postback)
-  } else {
-    response = null;
-  }
-
-  // Send the message to acknowledge the postback
-  if (response) {
-    callSendAPI(senderId, response);
+  // Process based on the current state
+  switch (currentStateCode) {
+    case conversationState.STATE_INIT:
+      return handlePostbackForInitState(senderId, currentState, postbackContent)
+    case conversationState.STATE_INITIAL_OPTIONS_SENT:
+      return handlePostbackForInitialOptionsSentState(senderId, currentState, postbackContent)
   }
 }
 
-/**
- * When user taps Get Started
- * - Show available options: Book an Appointment or Speak to a Representative
- */
-function handlePostbackGetStarted(postback) {
-  if (postback.payload !== messengerConsts.POSTBACK_GET_STARTED_PAYLOAD) {
-    return
+function handlePostbackForInitState(senderId, currentState, postbackContent) {
+  if (postbackContent.payload === messengerConstants.POSTBACK_GET_STARTED_PAYLOAD) {
+    // Send greeting message
+    sendFunctions.sendInitialGreeting(senderId)
+    // Process new state
+    return conversationState.getNewState(currentState, conversationState.getSendInitialOptionsAction())
   }
-  return {
-    "attachment": {
-      "type": "template",
-      "payload": {
-        "template_type": "button",
-        "text": "What would you like to do?",
-        "buttons": [
-          {
-            "type": "postback",
-            "title": "Book an Appointment",
-            "payload": messengerConsts.POSTBACK_BOOK_APPT_PAYLOAD,
-          }, {
-            "type": "postback",
-            "title": "Speak to Someone",
-            "payload": messengerConsts.POSTBACK_SPEAK_TO_PERSON_PAYLOAD,
-          }
-        ]
-      }
-    }
-  }
+  logger.error("Initial state but postback is not of form GET_STARTED")
+  logger.error(postbackContent)
+  logger.error(currentState)
 }
 
-function handlePostbackBookAppointment(postback) {
-  if (postback.payload !== messengerConsts.POSTBACK_BOOK_APPT_PAYLOAD) {
-    return
+function handlePostbackForInitialOptionsSentState(senderId, currentState, postbackContent) {
+  if (postbackContent.payload === messengerConstants.POSTBACK_BOOK_APPT_PAYLOAD) {
+    // Send available therapists
+    // TODO: Call API
+    sendFunctions.sendAvailableTherapists(senderId, [
+      {
+        id: "any",
+        fullName: "Any"
+      },
+      {
+        id: "johndoe",
+        fullName: "John Doe"
+      },
+      {
+        id: "janesmith",
+        fullName: "Jane Smith"
+      },
+    ])
+    // Process new state
+    return conversationState.getNewState(currentState, conversationState.getBookAppointmentAction())
   }
-  return {
-    "text": "Let's get started! We need your phone number to begin.",
-    "quick_replies": [{
-      "content_type": "user_phone_number"
-    }]
-  }
+  // User clicked on "talk to human"
+  sendFunctions.sendMessage(senderId, "Someone will be with you shortly!")
+  return conversationState.getNewState(currentState, conversationState.getSpeakToHumanAction())
 }
+
 
 module.exports = {
   handlePostback

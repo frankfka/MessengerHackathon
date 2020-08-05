@@ -1,6 +1,14 @@
 const { callSendAPI } = require('./common');
 const messengerConsts = require('./constants')
 
+// Generic send message
+function sendMessage(senderId, message) {
+  const response = {
+    "text": message,
+  }
+  callSendAPI(senderId, response);
+}
+
 // Send greeting with available options to speak to a human or to book an appointment
 function sendInitialGreeting(senderId) {
   const response = {
@@ -84,6 +92,7 @@ function acknowledgeBookingRequestReceived(senderId) {
 }
 
 module.exports = {
+  sendMessage,
   sendInitialGreeting,
   sendAvailableTherapists,
   sendAvailableTimes,

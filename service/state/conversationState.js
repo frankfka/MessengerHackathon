@@ -6,6 +6,7 @@ const { logger } = require('../logger');
 // States
 const STATE_INIT = "INIT" // Start
 const STATE_HUMAN_NEEDED = "HUMAN_NEEDED" // Terminal
+const STATE_INITIAL_OPTIONS_SENT = "INITIAL_OPTIONS_SENT"
 const STATE_BOOK_REQUESTED = "BOOK_REQUESTED"
 const STATE_BOOK_THERAPIST_PICKED = "BOOK_THERAPIST_PICKED"
 const STATE_BOOK_TIME_PICKED = "BOOK_TIME_PICKED"
@@ -17,10 +18,10 @@ const STATE_CURR_STATE_KEY = "current_state"
 const STATE_PICKED_THERAPIST_KEY = "requested_therapist"
 const STATE_PICKED_TIME_KEY = "picked_time"
 const STATE_PHONE_NUMBER_KEY = "phone_number"
-const STATE_CODE_KEY = "state_code"
 
 // Actions
 const ACTION_SPEAK_TO_HUMAN = "SPEAK_TO_HUMAN" // Catch all for invalid states to direct to a human
+const ACTION_SEND_INITIAL_OPTIONS = "SEND_INITIAL_OPTIONS"
 const ACTION_BOOK_APPT = "BOOK_APPT"
 const ACTION_PICK_THERAPIST = "PICK_THERAPIST"
 const ACTION_PICK_TIME = "PICK_TIME"
@@ -33,15 +34,18 @@ function getBaseAction(code) {
   actionObject[ACTION_CODE_KEY] = code
   return actionObject
 }
+function getSendInitialOptionsAction() {
+  return getBaseAction(ACTION_SEND_INITIAL_OPTIONS)
+}
 function getSpeakToHumanAction() {
   return getBaseAction(ACTION_SPEAK_TO_HUMAN)
 }
 function getBookAppointmentAction() {
   return getBaseAction(ACTION_BOOK_APPT)
 }
-function getPickTherapistAction(therapistName) {
+function getPickTherapistAction(therapistId) {
   let actionObject = getBaseAction(ACTION_PICK_THERAPIST)
-  actionObject[STATE_PICKED_THERAPIST_KEY] = therapistName
+  actionObject[STATE_PICKED_THERAPIST_KEY] = therapistId
   return actionObject
 }
 function getPickTimeAction(time) {
@@ -64,7 +68,7 @@ function getInitialState(senderId) {
 }
 
 // Get a new state object from current state and action
-function updateState(currentState, action) {
+function getNewState(currentState, action) {
   let newState = { ...currentState } // State shouldn't have nested properties
   let currentStateCode = currentState[STATE_CURR_STATE_KEY]
   let actionCode = action[ACTION_CODE_KEY]
@@ -76,6 +80,12 @@ function updateState(currentState, action) {
     // TODO: Return appropriate future state with populated fields
     case STATE_INIT:
       // Can book appointment on initial state
+      if (actionCode === ACTION_SEND_INITIAL_OPTIONS) {
+        newStateCode = STATE_INITIAL_OPTIONS_SENT
+      }
+      break
+    case STATE_INITIAL_OPTIONS_SENT:
+      // Can book appointment after options sent
       if (actionCode === ACTION_BOOK_APPT) {
         newStateCode = STATE_BOOK_REQUESTED
       }
@@ -113,13 +123,19 @@ function updateState(currentState, action) {
     `Dispatching ${actionCode} for current
      state ${currentStateCode} gives ${newStateCode}`
   )
-  newState[STATE_CODE_KEY] = newStateCode
+  newState[STATE_CURR_STATE_KEY] = newStateCode
 
   return newState
 }
 
 module.exports = {
   // State codes
+  STATE_INIT,
+  STATE_INITIAL_OPTIONS_SENT,
+  STATE_BOOK_REQUESTED,
+  STATE_BOOK_THERAPIST_PICKED,
+  STATE_BOOK_TIME_PICKED,
+  STATE_PHONE_CONFIRMED,
 
   // State Keys
   STATE_SENDER_ID_KEY,
@@ -127,6 +143,12 @@ module.exports = {
 
   // State functions
   getInitialState,
-  updateState,
+  getNewState,
+
   // Action factory functions
+  getSendInitialOptionsAction,
+  getBookAppointmentAction,
+  getPickTherapistAction,
+  getGivePhoneNumberAction,
+  getSpeakToHumanAction
 }

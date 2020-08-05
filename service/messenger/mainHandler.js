@@ -1,7 +1,9 @@
 const { saveState } = require('../state/stateService');
 const { handlePostback } = require('./postbackHandlers');
 const { handleMessage } = require('./messageHandlers');
-const { getState } = require('../state/stateService');
+const { getState, deleteSavedState } = require('../state/stateService');
+const { logger } = require('../logger');
+
 
 function handleMessengerEvent(webhookEvent) {
   // Get the sender PSID
@@ -9,18 +11,23 @@ function handleMessengerEvent(webhookEvent) {
   // Get the conversation state
   let conversationState = getState(senderId)
 
+  logger.info("Handling Event")
+  logger.info(webhookEvent)
+  logger.info(conversationState)
+
   // Process state and event
   if (webhookEvent.message) {
-    conversationState = handleMessage(conversationState, webhookEvent.message);
+    conversationState = handleMessage(senderId, conversationState, webhookEvent.message);
   } else if (webhookEvent.postback) {
-    conversationState = handlePostback(conversationState, webhookEvent.postback);
+    conversationState = handlePostback(senderId, conversationState, webhookEvent.postback);
   }
 
   // Save the new state
-  if (!conversationState) {
+  if (conversationState) {
     saveState(conversationState)
   } else {
-    // TODO: Error case
+    logger.warn("New conversation state is null or undefined. Removing from database.")
+    deleteSavedState(senderId)
   }
 }
 
