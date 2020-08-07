@@ -4,16 +4,15 @@ const { handleMessage } = require('./messageHandlers');
 const { getState, deleteSavedState } = require('../state/stateService');
 const { logger } = require('../logger');
 
-
 function handleMessengerEvent(webhookEvent) {
   // Get the sender PSID
-  let senderId = webhookEvent.sender.id;
+  const senderId = webhookEvent.sender.id;
   // Get the conversation state
-  let conversationState = getState(senderId)
+  let conversationState = getState(senderId);
 
-  logger.info("Handling Event")
-  logger.info(webhookEvent)
-  logger.info(conversationState)
+  logger.info('Handling Event');
+  logger.info(webhookEvent);
+  logger.info(conversationState);
 
   // Process state and event
   if (webhookEvent.message) {
@@ -24,13 +23,13 @@ function handleMessengerEvent(webhookEvent) {
 
   // Save the new state
   if (conversationState) {
-    saveState(conversationState)
+    saveState(conversationState);
   } else {
-    logger.warn("New conversation state is null or undefined. Removing from database.")
-    deleteSavedState(senderId)
+    logger.warn('New conversation state is null or undefined. Removing from database.');
+    deleteSavedState(senderId);
   }
 }
 
 module.exports = {
-  handleMessengerEvent
-}
+  handleMessengerEvent,
+};

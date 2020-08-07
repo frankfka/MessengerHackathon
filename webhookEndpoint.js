@@ -1,22 +1,21 @@
 const { Router } = require('express');
-const secrets = require('./secrets')
+const secrets = require('./secrets');
 const { handleMessengerEvent } = require('./service/messenger/mainHandler');
-
 
 // Handles a webhook event
 function handleWebhookPost(req, res) {
-  let body = req.body;
+  const { body } = req;
   if (body.object === 'page') {
     // Iterates over each entry - there may be multiple if batched
-    body.entry.forEach(function(entry) {
+    body.entry.forEach((entry) => {
       // Get event itself
-      let webhookEvent = entry.messaging[0]; // Entry will only contain one item
+      const webhookEvent = entry.messaging[0]; // Entry will only contain one item
       if (webhookEvent) {
-        handleMessengerEvent(webhookEvent)
+        handleMessengerEvent(webhookEvent);
       }
     });
     // Return 200 immediately
-    res.sendStatus(200)
+    res.sendStatus(200);
   } else {
     // Invalid request
     res.sendStatus(404);
@@ -26,9 +25,9 @@ function handleWebhookPost(req, res) {
 // Handle Facebook webhook verification
 function handleWebhookGet(req, res) {
   // Parse the query params
-  let mode = req.query['hub.mode'];
-  let token = req.query['hub.verify_token'];
-  let challenge = req.query['hub.challenge'];
+  const mode = req.query['hub.mode'];
+  const token = req.query['hub.verify_token'];
+  const challenge = req.query['hub.challenge'];
 
   // Checks if a token and mode is in the query string of the request
   if (mode && token) {
@@ -45,8 +44,8 @@ function handleWebhookGet(req, res) {
 
 // Create Router
 const webhookRouter = Router();
-webhookRouter.post('/', handleWebhookPost)
-webhookRouter.get('/', handleWebhookGet)
+webhookRouter.post('/', handleWebhookPost);
+webhookRouter.get('/', handleWebhookGet);
 
 // Export
-module.exports = { webhookRouter }
+module.exports = { webhookRouter };

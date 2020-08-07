@@ -1,12 +1,12 @@
 // Inject env
-require('dotenv').config()
+require('dotenv').config();
 
 // Verify token for Messenger to verify the webhook
-const VERIFY_TOKEN = process.env.VERIFY_TOKEN
+const { VERIFY_TOKEN } = process.env;
 // Access token to call Messenger API
-const ACCESS_TOKEN = process.env.ACCESS_TOKEN
+const { ACCESS_TOKEN } = process.env;
 
 module.exports = {
   VERIFY_TOKEN,
-  ACCESS_TOKEN
-}
+  ACCESS_TOKEN,
+};

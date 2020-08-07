@@ -2,7 +2,7 @@ const pino = require('pino');
 const pinoExpress = require('express-pino-logger');
 
 // Use dev log mode for now
-const logFormat = 'dev'
+const logFormat = 'dev';
 
 const stdLogger = pino({
   // Either pass a pino-pretty config object or false
