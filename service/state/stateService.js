@@ -11,6 +11,7 @@ const { getInitialState } = require('./conversationState');
 
 // Create a cache for state
 const stateCache = new NodeCache({
+  // TODO: bump up TTL
   stdTTL: 60 // TTL to 1 hour for testing implementation
 });
 

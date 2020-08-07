@@ -15,8 +15,8 @@ const STATE_PHONE_CONFIRMED = "PHONE_CONFIRMED"
 // State object keys
 const STATE_SENDER_ID_KEY = "sender_id"
 const STATE_CURR_STATE_KEY = "current_state"
-const STATE_PICKED_THERAPIST_KEY = "requested_therapist"
-const STATE_PICKED_TIME_KEY = "picked_time"
+const STATE_PICKED_THERAPIST_ID_KEY = "requested_therapist_id"
+const STATE_PICKED_TIME_ID_KEY = "picked_time_id"
 const STATE_PHONE_NUMBER_KEY = "phone_number"
 
 // Actions
@@ -45,12 +45,12 @@ function getBookAppointmentAction() {
 }
 function getPickTherapistAction(therapistId) {
   let actionObject = getBaseAction(ACTION_PICK_THERAPIST)
-  actionObject[STATE_PICKED_THERAPIST_KEY] = therapistId
+  actionObject[STATE_PICKED_THERAPIST_ID_KEY] = therapistId
   return actionObject
 }
-function getPickTimeAction(time) {
+function getPickTimeAction(timeId) {
   let actionObject = getBaseAction(ACTION_PICK_TIME)
-  actionObject[STATE_PICKED_TIME_KEY] = time
+  actionObject[STATE_PICKED_TIME_ID_KEY] = timeId
   return actionObject
 }
 function getGivePhoneNumberAction(phoneNumber) {
@@ -77,7 +77,6 @@ function getNewState(currentState, action) {
   let newStateCode = STATE_HUMAN_NEEDED
   // State logic for happy path
   switch (currentStateCode) {
-    // TODO: Return appropriate future state with populated fields
     case STATE_INIT:
       // Can book appointment on initial state
       if (actionCode === ACTION_SEND_INITIAL_OPTIONS) {
@@ -95,7 +94,7 @@ function getNewState(currentState, action) {
       if (actionCode === ACTION_PICK_THERAPIST) {
         newStateCode = STATE_BOOK_THERAPIST_PICKED
         // Add therapist name
-        newState[STATE_PICKED_THERAPIST_KEY] = action[STATE_PICKED_THERAPIST_KEY]
+        newState[STATE_PICKED_THERAPIST_ID_KEY] = action[STATE_PICKED_THERAPIST_ID_KEY]
       }
       break
     case STATE_BOOK_THERAPIST_PICKED:
@@ -103,7 +102,7 @@ function getNewState(currentState, action) {
       if (actionCode === ACTION_PICK_TIME) {
         newStateCode = STATE_BOOK_TIME_PICKED
         // Add picked time
-        newState[STATE_PICKED_TIME_KEY] = action[STATE_PICKED_TIME_KEY]
+        newState[STATE_PICKED_TIME_ID_KEY] = action[STATE_PICKED_TIME_ID_KEY]
       }
       break
     case STATE_BOOK_TIME_PICKED:
@@ -115,7 +114,7 @@ function getNewState(currentState, action) {
       }
       break
     case STATE_PHONE_CONFIRMED:
-      // TODO!
+      // TODO: no future actions yet
       break
   }
 
@@ -140,6 +139,7 @@ module.exports = {
   // State Keys
   STATE_SENDER_ID_KEY,
   STATE_CURR_STATE_KEY,
+  STATE_PICKED_THERAPIST_ID_KEY,
 
   // State functions
   getInitialState,
@@ -149,6 +149,7 @@ module.exports = {
   getSendInitialOptionsAction,
   getBookAppointmentAction,
   getPickTherapistAction,
+  getPickTimeAction,
   getGivePhoneNumberAction,
   getSpeakToHumanAction
 }

@@ -1,5 +1,8 @@
 const { callSendAPI } = require('./common');
 const messengerConsts = require('./constants')
+const bookingService = require('../bookingService');
+
+// TODO: Comment, set up eslint, deploy
 
 // Generic send message
 function sendMessage(senderId, message) {
@@ -40,13 +43,13 @@ function sendAvailableTherapists(senderId, availableTherapists) {
   const quickReplies = availableTherapists.map((therapist) => {
     return {
       "content_type": "text",
-      // TODO: externalize
-      "title": therapist['fullName'],
-      "payload": therapist['id'],
+      "title": therapist[bookingService.NAME_KEY],
+      "payload": therapist[bookingService.ID_KEY],
     }
   })
   const response = {
-    "text": "Awesome! Here are the available therapists at our location.",
+    "text": "Awesome! Here are the available therapists at our location. Please let us know " +
+      "who you want to book with.",
     "quick_replies": quickReplies
   }
   callSendAPI(senderId, response);
@@ -55,17 +58,16 @@ function sendAvailableTherapists(senderId, availableTherapists) {
 //
 // " it seems like you want to book with ____ " - here are the next available times
 // " We couldn't figure out the therapist that you're looking for, someone will be following up shortly!"
-function sendAvailableTimes(senderId, availableTimes, therapist) {
+function sendAvailableTimes(senderId, availableTimes) {
   const quickReplies = availableTimes.map((time) => {
     return {
       "content_type": "text",
-      // TODO: externalize
-      "title": time['display'],
-      "payload": time['time'],
+      "title": time[bookingService.AVAILABILITY_DISPLAY_KEY],
+      "payload": time[bookingService.AVAILABILITY_DATA_KEY],
     }
   })
   const response = {
-    "text": `Here are the times when ${therapist['fullName']} is available. Please let us know what works best for you.`,
+    "text": `Here are the available times. Please let us know what works best for you.`,
     "quick_replies": quickReplies
   }
   callSendAPI(senderId, response);
@@ -86,7 +88,7 @@ function inquireForPhoneNumber(senderId) {
 function acknowledgeBookingRequestReceived(senderId) {
   // TODO: Request one-time notif? https://developers.facebook.com/docs/messenger-platform/send-messages/one-time-notification
   const response = {
-    "text": "Great! We will follow up shortly to confirm this booking.",
+    "text": "Thank you so much! We will follow up shortly to confirm this booking.",
   }
   callSendAPI(senderId, response);
 }
