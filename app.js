@@ -17,6 +17,10 @@ app.use(bodyParser.json())
 // Request Logging
 app.use(reqLogger);
 
+// Health endpoint
+app.get('/', (req, res) => {
+  res.send('OK')
+})
 // Init webhook endpoint
 app.use('/webhook', webhookRouter)
 // Start app
