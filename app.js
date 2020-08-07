@@ -6,7 +6,7 @@ const { reqLogger, logger } = require('./service/logger');
 const { webhookRouter } = require('./webhookEndpoint');
 
 // Declare constants
-port = 1337
+port = process.env.PORT || 1337
 
 // Create the app to listen on specified port
 const app = express();
