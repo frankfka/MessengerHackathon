@@ -9,7 +9,7 @@ function sendMessage(senderId, message) {
   const response = {
     text: message,
   };
-  callSendAPI(senderId, response);
+  callSendAPI(senderId, null, response);
 }
 
 /*
@@ -36,7 +36,7 @@ function sendInitialGreeting(senderId) {
       },
     },
   };
-  callSendAPI(senderId, response);
+  callSendAPI(senderId, null, response);
 }
 
 /*
@@ -53,7 +53,7 @@ function sendAvailableTherapists(senderId, availableTherapists) {
       + 'who you want to book with.',
     quick_replies: quickReplies,
   };
-  callSendAPI(senderId, response);
+  callSendAPI(senderId, null, response);
 }
 
 /*
@@ -69,7 +69,7 @@ function sendAvailableTimes(senderId, availableTimes) {
     text: 'Here are the available times. Please let us know what works best for you.',
     quick_replies: quickReplies,
   };
-  callSendAPI(senderId, response);
+  callSendAPI(senderId, null, response);
 }
 
 /*
@@ -82,7 +82,7 @@ function inquireForPhoneNumber(senderId) {
       content_type: 'user_phone_number', // Payload will be the user's phone number
     }],
   };
-  callSendAPI(senderId, response);
+  callSendAPI(senderId, null, response);
 }
 
 /*
@@ -93,7 +93,24 @@ function acknowledgeBookingRequestReceived(senderId) {
   const response = {
     text: 'Thank you so much! We will follow up shortly to confirm this booking.',
   };
-  callSendAPI(senderId, response);
+  callSendAPI(senderId, null, response);
+}
+
+/*
+Ask permission to follow up with a one time notification
+ */
+function askPermissionForFollowUp(senderId) {
+  const response = {
+    attachment: {
+      type: 'template',
+      payload: {
+        template_type: 'one_time_notif_req',
+        title: 'Can we notify you with an appointment update?',
+        payload: 'test',
+      },
+    },
+  };
+  callSendAPI(senderId, null, response);
 }
 
 module.exports = {
@@ -103,4 +120,5 @@ module.exports = {
   sendAvailableTimes,
   inquireForPhoneNumber,
   acknowledgeBookingRequestReceived,
+  askPermissionForFollowUp,
 };

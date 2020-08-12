@@ -85,7 +85,9 @@ function handleMessageForBookTimePickedState(senderId, currentState, receivedMes
     phoneNumber = quickReplyPhoneNumber;
   }
 
+  // Acknowledge request and ask for follow up permission
   sendFunctions.acknowledgeBookingRequestReceived(senderId);
+  sendFunctions.askPermissionForFollowUp(senderId);
   return conversationState.getNewState(
     currentState, conversationState.getGivePhoneNumberAction(phoneNumber),
   );

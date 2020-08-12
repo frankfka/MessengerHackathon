@@ -38,18 +38,23 @@ function initWelcomeScreen() {
 }
 
 // Sends response messages via the Send API
-function callSendAPI(senderId, messageContent) {
+function callSendAPI(senderId, oneTimeNotifToken, messageContent) {
+  let recipientData = {
+    id: senderId,
+  };
+  if (oneTimeNotifToken) {
+    recipientData = {
+      one_time_notif_token: oneTimeNotifToken,
+    };
+  }
   // Create the request body
   const requestBody = {
-    recipient: {
-      id: senderId,
-    },
+    recipient: recipientData,
     message: messageContent,
   };
-  callMessengerAPI('https://graph.facebook.com/v2.6/me/messages', requestBody)
+  callMessengerAPI('https://graph.facebook.com/v8.0/me/messages', requestBody)
     .then((response) => {
       logger.info('Send message response');
-      // handle success
       logger.info(response.data);
     })
     .catch((error) => {
