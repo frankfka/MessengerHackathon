@@ -21,7 +21,11 @@ function sendInitialGreeting(senderId) {
       type: 'template',
       payload: {
         template_type: 'button',
-        text: "Hello! Thanks for getting in touch. Please let me know what you're looking for.",
+        text: "Hello! Thanks for getting in touch. Please let me know what you're looking for."
+          + '\n\nDemo Note: For demonstration purposes, to "restart" the conversation flow, '
+          + 'wait 60 seconds before sending a new message to create a new conversational instance. '
+          + 'The TTL for state caching is 60 seconds, which means that your current progress will '
+          + 'be reset if a minute has passed since the last sent message.',
         buttons: [
           {
             type: 'postback',
@@ -89,7 +93,6 @@ function inquireForPhoneNumber(senderId) {
 Acknowledge a booking request
  */
 function acknowledgeBookingRequestReceived(senderId) {
-  // TODO: Request one-time notif? https://developers.facebook.com/docs/messenger-platform/send-messages/one-time-notification
   const response = {
     text: 'Thank you so much! We will follow up shortly to confirm this booking.',
   };
@@ -110,6 +113,7 @@ function askPermissionForFollowUp(senderId) {
       },
     },
   };
+  // TODO: Get response
   callSendAPI(senderId, null, response);
 }
 

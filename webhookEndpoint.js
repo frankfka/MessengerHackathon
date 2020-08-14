@@ -1,10 +1,12 @@
 const { Router } = require('express');
 const secrets = require('./secrets');
 const { handleMessengerEvent } = require('./service/messenger/mainHandler');
+const { logger } = require('./service/logger');
 
 // Handles a webhook event
 function handleWebhookPost(req, res) {
   const { body } = req;
+  logger.error(body);
   if (body.object === 'page') {
     // Iterates over each entry - there may be multiple if batched
     body.entry.forEach((entry) => {
